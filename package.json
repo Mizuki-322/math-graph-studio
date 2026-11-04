@@ -1,11 +1,13 @@
 {
   "name": "math-graph-studio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "交互式函数图像实验室",
   "private": true,
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check src/app.js && node --check src/graph.js && node --check src/signal.js && node --check src/keyboard.js && node --check src/math-input.js && node --check src/core/index.js && node --check src/core/workspace.js && node --check src/core/formula.js && node --check src/core/numerics.js && node --check src/core/transforms.js && node --check src/core/curve.js",
+    "desktop": "npm run build && electron desktop/main.cjs",
+    "desktop:smoke": "npm run build && electron desktop/smoke.cjs",
+    "check": "node --check src/app.js && node --check src/graph.js && node --check src/signal.js && node --check src/keyboard.js && node --check src/math-input.js && node --check src/core/index.js && node --check src/core/workspace.js && node --check src/core/formula.js && node --check src/core/numerics.js && node --check src/core/transforms.js && node --check src/core/curve.js && node --check desktop/main.cjs && node --check desktop/protocol.cjs && node --check desktop/smoke.cjs",
     "test": "node --test tests/*.test.mjs"
   },
   "type": "module",
@@ -15,5 +17,8 @@
     "mathlive": "^0.111.3",
     "plotly.js-dist-min": "^4.1.2"
   },
-  "license": "PolyForm-Noncommercial-1.0.0"
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "devDependencies": {
+    "electron": "45.2.2"
+  }
 }

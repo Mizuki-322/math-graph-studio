@@ -1,6 +1,6 @@
 # 函数图像实验室
 
-这是一个在浏览器中运行的数学辅助理解工具，借助 AI 实现，**目前尚未完成**。本仓库只包含网页端源码，不包含 Python 桌面版、构建产物或安装包。
+这是一个数学辅助理解工具，借助 AI 实现，**目前尚未完成**。本仓库包含网页端源码及加载同一页面的 Electron 桌面壳，不包含 Python 桌面版、构建产物或安装包。
 
 ## 当前已有功能
 
@@ -23,6 +23,7 @@ src/
   keyboard.js    屏幕数学键盘
   *.html, *.css  页面结构与样式
 scripts/build.mjs  将页面和依赖资源构建到 dist/
+desktop/           Electron 桌面壳与两页面的启动检查；只加载构建后的 dist/
 tests/             计算内核与命令的回归测试
 ```
 
@@ -40,7 +41,17 @@ npm run build
 python -m http.server 4173 --directory dist
 ```
 
-浏览器打开 `http://localhost:4173/`。最后一行仅用 Python 启动本地静态文件服务器；网页计算仍由浏览器中的 JavaScript 完成。`dist/` 是可重新生成的构建目录，不提交到代码仓库。桌面安装包如以后制作，应通过 GitHub Releases 分发。
+浏览器打开 `http://localhost:4173/`。最后一行仅用 Python 启动本地静态文件服务器；网页计算仍由浏览器中的 JavaScript 完成。
+
+运行桌面窗口：
+
+```bash
+npm run desktop
+```
+
+该命令先构建 `dist/`，再启动 Electron。两个页面仍使用原有的 HTML、CSS、JavaScript 和计算内核；桌面壳通过 `mathgraph://app/` 本地协议提供资源，不需要启动 HTTP 服务。可以用 `npm run desktop:smoke` 检查两页的主要功能。`dist/` 是可重新生成的构建目录，不提交到代码仓库；目前不提供安装包。
+
+直接使用 `file://` 加载的实测结果：在 Electron 45.2.2 中，当前两个页面的 ES 模块和相对资源均正常加载，没有观察到功能错误。正式桌面入口仍采用标准、安全的自定义协议，使页面具有一致的来源和资源路径，并避免依赖 `file://` 的特殊权限行为。
 
 ## 后续计划
 
@@ -58,5 +69,6 @@ python -m http.server 4173 --directory dist
 | CortexJS Compute Engine | LaTeX 解析与计算 | MIT |
 | KaTeX | 公式排版 | MIT |
 | Plotly.js | 图像绘制 | MIT |
+| Electron（开发依赖） | 桌面窗口 | MIT |
 
 这些依赖的 MIT 条款允许与本项目的非商用许可并用；再次分发依赖时仍须保留其原有版权和许可声明。具体版本见 `package-lock.json`，其余间接依赖的许可证也以安装包所附文本为准。
