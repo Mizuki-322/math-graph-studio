@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0e1425">
+  <title>变换与频域 · 函数图像实验室</title>
+  <meta name="description" content="探索连续傅里叶变换、拉普拉斯复频域、离散傅里叶变换与 z 域。">
+  <link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./signal.css"><link rel="stylesheet" href="./keyboard.css"><link rel="stylesheet" href="./vendor/katex.min.css"><link rel="stylesheet" href="./math-input.css">
+  <script type="importmap">{"imports":{"@cortex-js/compute-engine":"./vendor/compute-engine/compute-engine.js"}}</script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">∿</span><div><strong>函数图像实验室</strong><small>把表达式变成可以探索的空间</small></div></div>
+      <nav class="top-nav" aria-label="工具导航"><a class="nav-link" href="./index.html">函数图像</a><a class="nav-link current" href="./signal.html">变换与频域</a></nav>
+    </header>
+    <main class="signal-layout">
+      <aside class="panel signal-controls">
+        <p class="eyebrow">01 / 选择变换</p><h1>从时域到频域</h1>
+        <p class="signal-intro">改变信号，观察频率成分如何变化；在复平面中探索变换的幅值。</p>
+        <div class="transform-modes" role="group" aria-label="变换类型">
+          <button type="button" class="transform-mode active" data-mode="fourier"><span class="mode-symbol">ℱ</span><span><strong>连续傅里叶</strong><small>时域 ↔ 频域</small></span></button>
+          <button type="button" class="transform-mode" data-mode="laplace"><span class="mode-symbol">ℒ</span><span><strong>拉普拉斯 s 域</strong><small>复频率 σ + jω</small></span></button>
+          <button type="button" class="transform-mode" data-mode="discrete"><span class="mode-symbol">Σ</span><span><strong>离散 DFT / z 域</strong><small>序列 ↔ 离散频率</small></span></button>
+        </div>
+        <div id="continuousFields" class="setting-group">
+          <label class="section-label" for="signalExpr">连续信号 x(t)</label>
+          <div class="expression-box"><span class="expression-prefix">x(t) =</span><math-field id="signalExpr" aria-label="连续信号公式" data-math-input data-keyboard-label="连续信号 x(t)" data-keyboard-vars="t">e^{-\left|t\right|}</math-field></div><div id="signalExprError" class="formula-error hidden" role="alert"></div>
+          <div class="range-grid"><label><span>t 最小</span><input id="tMin" type="number" value="-10" step="any"></label><label><span>t 最大</span><input id="tMax" type="number" value="10" step="any"></label></div>
+          <div class="range-grid"><label><span>ω 最小</span><input id="omegaMin" type="number" value="-12" step="any"></label><label><span>ω 最大</span><input id="omegaMax" type="number" value="12" step="any"></label></div>
+          <div id="sigmaFields" class="hidden"><label class="section-label sigma-label">实部 σ 范围</label><div class="range-grid"><label><span>σ 最小</span><input id="sigmaMin" type="number" value="-1" step="any"></label><label><span>σ 最大</span><input id="sigmaMax" type="number" value="1" step="any"></label></div></div>
+        </div>
+        <div id="discreteFields" class="setting-group hidden">
+          <label class="section-label" for="sequenceMode">序列输入方式</label>
+          <select id="sequenceMode"><option value="formula">公式 x[n]</option><option value="list">数值列表</option></select>
+          <div id="formulaFields"><div class="expression-box"><span class="expression-prefix">x[n] =</span><math-field id="sequenceExpr" aria-label="离散序列公式" data-math-input data-keyboard-label="离散序列 x[n]" data-keyboard-vars="n">0.8^n\cos\left(\frac{\pi n}{4}\right)</math-field></div><div id="sequenceExprError" class="formula-error hidden" role="alert"></div><p class="hint">n = 0, 1, …, N−1</p></div>
+          <div id="listFields" class="hidden"><div class="expression-box"><span class="expression-prefix">x[n] =</span><math-field id="sequenceList" aria-label="数值列表公式" data-math-input data-keyboard-label="数值列表" data-keyboard-kind="list">\left[1,0,-1,0\right]</math-field></div><div id="sequenceListError" class="formula-error hidden" role="alert"></div></div>
+          <label class="n-label" for="sampleCount">样本数 N <span id="sampleCountValue">32</span></label><input id="sampleCount" type="range" min="4" max="64" step="1" value="32">
+          <p class="hint">z 域展示有限序列的 X(z)=Σx[n]z⁻ⁿ；单位圆对应 DFT 取样。</p>
+        </div>
+        <button id="calculateBtn" class="primary signal-action" type="button">计算变换 <span>↗</span></button>
+        <div id="signalError" class="error hidden" role="alert"></div>
+        <div class="formula-card"><div class="formula-label">当前定义</div><div id="formulaText">F(ω) = ∫ x(t)e<sup>−jωt</sup> dt</div><p id="formulaNote">对有限时间窗进行数值积分，因此显示的是窗内信号的近似频谱。</p></div>
+      </aside>
+      <section class="signal-workspace">
+        <div class="panel signal-plot-panel"><div class="signal-panel-head"><div><p class="eyebrow">02 / 输入与复平面</p><h2 id="mainTitle">时域信号 x(t)</h2></div><span id="mainBadge" class="graph-meta">连续信号</span></div><div id="mainPlot" class="signal-plot"></div></div>
+        <div class="panel signal-plot-panel"><div class="signal-panel-head"><div><p class="eyebrow">03 / 变换结果</p><h2 id="resultTitle">傅里叶幅度谱 |F(ω)|</h2></div><div id="resultSwitch" class="mini-switch"><button type="button" data-view="magnitude" class="active">幅度</button><button type="button" data-view="phase">相位</button></div></div><div id="resultPlot" class="signal-plot"></div><p id="resultNote" class="plot-note"></p></div>
+        <div id="zPanel" class="panel signal-plot-panel hidden"><div class="signal-panel-head"><div><p class="eyebrow">04 / 离散复频域</p><h2>z 平面上的 |X(z)|</h2></div><span class="graph-meta">单位圆上的 DFT 取样</span></div><div id="zPlot" class="signal-plot"></div><p class="plot-note">颜色表示 log₁₀(1+|X(z)|)。金色圆是单位圆，其上的点是 DFT 取样；原点附近的值可能非常大或无定义。</p></div>
+      </section>
+    </main>
+    <footer>所有变换都基于有限范围或有限序列的数值计算；图像用于理解，不代表解析解。</footer>
+  </div>
+  <script src="./vendor/plotly.min.js"></script><script src="./vendor/katex.min.js"></script><script type="module" src="./signal.js"></script>
+</body>
+</html>

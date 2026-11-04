@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e1425">
+  <title>函数图像实验室</title>
+  <meta name="description" content="输入函数，探索二维曲线、三维曲面、时间变化，以及两个函数的交点或重合部分。">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./keyboard.css">
+  <link rel="stylesheet" href="./vendor/katex.min.css">
+  <link rel="stylesheet" href="./math-input.css">
+  <script type="importmap">{"imports":{"@cortex-js/compute-engine":"./vendor/compute-engine/compute-engine.js"}}</script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">∿</span><div><strong>函数图像实验室</strong><small>把表达式变成可以探索的空间</small></div></div>
+      <nav class="top-nav" aria-label="工具导航"><a class="nav-link current" href="./index.html">函数图像</a><a class="nav-link" href="./signal.html">变换与频域</a></nav>
+    </header>
+    <main class="layout">
+      <aside class="panel controls">
+        <div class="panel-head"><div><p class="eyebrow">01 / 设置</p><h1>从公式出发</h1></div><span class="step-icon">ƒ</span></div>
+        <div class="section">
+          <label class="section-label">选择图像维度</label>
+          <div class="mode-switch" role="group" aria-label="图像维度">
+            <button class="mode active" data-mode="2d" type="button"><strong>2D</strong><span>曲线</span></button>
+            <button class="mode" data-mode="3d" type="button"><strong>3D</strong><span>曲面</span></button>
+            <button class="mode" data-mode="4d" type="button"><strong>4D</strong><span>时间</span></button>
+          </div>
+          <p class="hint" id="modeHint">输入 y = f(x)，查看平面中的函数曲线。</p>
+        </div>
+        <div class="section expressions">
+          <div class="field-heading"><label for="exprA">函数 A</label><span class="color-key a"></span></div>
+          <div class="expression-box"><span class="expression-prefix" id="prefixA">y =</span><math-field id="exprA" aria-label="函数 A 公式" data-math-input data-keyboard-label="函数 A" data-keyboard-vars="x">\sin x</math-field></div><div id="exprAError" class="formula-error hidden" role="alert"></div>
+          <div class="field-heading second"><label for="exprB">函数 B</label><label class="toggle"><input id="showB" type="checkbox" checked><span>对比</span></label></div>
+          <div class="expression-box" id="exprBBox"><span class="expression-prefix" id="prefixB">y =</span><math-field id="exprB" aria-label="函数 B 公式" data-math-input data-keyboard-label="函数 B" data-keyboard-vars="x">\cos x</math-field></div><div id="exprBError" class="formula-error hidden" role="alert"></div>
+        </div>
+        <div class="section domain-section">
+          <label class="section-label">观察范围</label>
+          <div class="range-grid"><label><span>x 最小</span><input id="xMin" type="number" value="-10" step="any"></label><label><span>x 最大</span><input id="xMax" type="number" value="10" step="any"></label></div>
+          <div class="range-grid"><label><span id="yMinLabel">y 最小</span><input id="yMin" type="number" value="-3" step="any"></label><label><span id="yMaxLabel">y 最大</span><input id="yMax" type="number" value="3" step="any"></label></div>
+        </div>
+        <div class="section time-section hidden" id="timeSection">
+          <div class="time-title"><label for="timeSlider">时间 t</label><output id="timeValue">0.00</output></div>
+          <input id="timeSlider" type="range" min="-6.28" max="6.28" step="0.04" value="0">
+          <div class="time-row"><span>−6.28</span><button id="playBtn" type="button">▶ 播放</button><span>6.28</span></div>
+        </div>
+        <div class="actions"><button id="drawBtn" class="primary" type="button">生成图像 <span>↗</span></button><button id="resetBtn" class="secondary" type="button" title="恢复当前维度的示例">示例</button></div>
+        <div id="evaluatePanel" class="evaluate-panel"><label for="evalX">代入数值求值</label><div class="evaluate-row"><span>x =</span><math-field id="evalX" aria-label="代入 x 的值" data-math-input data-keyboard-label="代入 x 的值" data-keyboard-vars="">2</math-field></div><div id="evalXError" class="formula-error hidden" role="alert"></div><div id="evalResult" class="evaluate-result" aria-live="polite"></div></div>
+        <div id="error" class="error hidden" role="alert"></div>
+      </aside>
+      <section class="workspace">
+        <div class="panel graph-panel">
+          <div class="graph-header"><div><p class="eyebrow">02 / 可视化</p><h2 id="graphTitle">二维函数曲线</h2></div><div class="graph-meta" id="graphMeta">x ∈ [−10, 10]</div></div>
+          <div id="plot" aria-label="函数图像"></div>
+          <div class="graph-footer"><span>拖动平移 · 滚轮缩放 · 双击复位</span><span id="pointCount"></span></div>
+        </div>
+        <div class="panel results-panel"><div class="results-heading"><div><p class="eyebrow">03 / 关系</p><h2>两个函数的关系</h2></div><span class="relation-badge" id="relationBadge">计算中</span></div><div id="results" class="results"></div></div>
+      </section>
+    </main>
+    <footer>数值结果是近似值。图像与交点仅在当前观察范围内计算。</footer>
+  </div>
+  <script src="./vendor/plotly.min.js"></script><script src="./vendor/katex.min.js"></script><script type="module" src="./app.js"></script>
+</body>
+</html>
